@@ -204,7 +204,7 @@ class World
   end
 
   def win
-    puts "\n ==== Hooray! You won! ===="
+    puts "\n==== Hooray! You won! ===="
     @running = false
   end
 
