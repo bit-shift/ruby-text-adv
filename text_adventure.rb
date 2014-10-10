@@ -13,15 +13,20 @@ module Directions
   West  = :west
   Up    = :up
   Down  = :down
+  NorthEast = [North, East]
+  SouthEast = [South, East]
+  SouthWest = [South, West]
+  NorthWest = [North, West]
 
-  Vertical  = [:up, :down]
+  Vertical  = [Up, Down]
 
-  Cardinal = [:north, :east, :south, :west]
+  Cardinal = [North, East, South, West]
 
-  SemiCardinal = [[:north, :east], [:north, :west],
-                  [:south, :west], [:south, :east]]
+  SemiCardinal = [NorthEast, SouthEast, SouthWest, NorthWest]
 
-  All = Cardinal + SemiCardinal + Vertical
+  Compass = Cardinal + SemiCardinal
+
+  All = Compass + Vertical
 
   def self.opposite(d)
     if d.respond_to? :map
