@@ -595,13 +595,13 @@ while $repeat do
       }
     }
 
-    atrium = add_room{
-      named "the atrium"
-      desc "This looks like an unusually wide entry area compared to the room it adjoins."
+    hallway = add_room{
+      named "a hallway"
+      desc "You're unsure why you have an entrance hallway when your house only has one room anyway."
     }
 
-    living_room.connect_to Directions::South, atrium
-    atrium.connect_to Directions::South, outside
+    living_room.connect_to Directions::South, hallway
+    hallway.connect_to Directions::South, outside
 
     @starting_room = living_room
   end
