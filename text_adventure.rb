@@ -409,7 +409,12 @@ private
     end
 
     def parse_command(input)
-      command = input.downcase.split(" ")
+      command = input.downcase
+                     .sub(/^look at /, "examine ")  # multi-word aliases
+                     .sub(/^look around$/, "look")
+                     .sub(/^(put down|throw away) /, "drop ")
+                     .sub(/^(go to|move to)( the|) /, "go ")
+                     .split(" ")
       case command.first
       when "bye"
         [:quit]
