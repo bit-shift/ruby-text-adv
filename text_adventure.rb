@@ -210,8 +210,8 @@ class World
 
 private
   
-    def ask(prompt)
-      print ("\n" << prompt << "\n> ")
+    def ask(question, prompt="> ")
+      print ("\n" << question << "\n" << prompt)
       ($stdin.gets || "bye").chomp
     end
 
