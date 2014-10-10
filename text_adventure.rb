@@ -268,7 +268,69 @@ private
       end
     end
 
-    def match_items(item_string, *item_sources)
+    def match_named(query_string, named_objects)
+      query_string.downcase!
+
+      exact_matches = []
+      word_matches = []
+      prefix_matches = []
+      initial_matches = []
+
+      named_objects.each do |n_obj|
+        object_names = [n_obj.name] 
+        if n_obj.respond_to? :synonyms 
+          object_names += n_obj.synonyms
+        end
+        object_names.map! { |n| n.downcase }
+
+        if object_names.include? query_string
+          exact_matches << n_obj
+        end
+
+        unless object_names.select{ |n| (query_string.split & n.split) == query_string.split }.empty?
+          word_matches << n_obj
+        end
+
+        unless object_names.select{ |n| n.start_with? query_string }.empty?
+          prefix_matches << n_obj
+        end
+
+        unless object_names.select{ |n| n.split.map{ |w| w[0] } == query_string.each_char.to_a }.empty?
+          initial_matches << n_obj
+        end
+      end
+
+      [exact_matches, word_matches, prefix_matches, initial_matches].reject{ |a| a.empty? }.first
+    end
+
+    def lookup_named(query_string, named_objects, &block)
+      matches = match_named(query_string, named_objects)
+
+      if matches
+        if matches.size == 1
+          matches.first
+        else
+          puts "\n'#{query_string}' could mean multiple things:"
+          matches.each_with_index { |n_obj, idx|
+            if block
+              object_note = (block.call n_obj) || ""
+              object_note.prepend ", " unless object_note.empty?
+            end
+            puts "\t#{n_obj.name} (##{idx + 1}#{object_note})"
+          }
+          n = ask "Which did you mean?", "#"
+          until n.empty? do
+            begin
+              return matches[Integer(n) - 1]
+            rescue
+              n = ask "I didn't understand that. Which did you mean again?", "#"
+            end
+          end
+        end
+      end
+    end
+
+    def lookup_item(item_string, *item_sources)
       item_list = []
 
       if item_sources.empty?
@@ -283,57 +345,14 @@ private
         end
       end
 
-      item_string.downcase!
-
-      exact_matches = []
-      word_matches = []
-      prefix_matches = []
-      initial_matches = []
-
-      item_list.each do |item|
-        item_names = ([item.name] + item.synonyms).map{ |n| n.downcase }
-
-        if item_names.include? item_string
-          exact_matches << item
-        end
-
-        unless item_names.select{ |n| (item_string.split & n.split) == item_string.split }.empty?
-          word_matches << item
-        end
-
-        unless item_names.select{ |n| n.start_with? item_string }.empty?
-          prefix_matches << item
-        end
-
-        unless item_names.select{ |n| n.split.map{ |w| w[0] } == item_string.each_char.to_a }.empty?
-          initial_matches << item
-        end
-      end
-
-      [exact_matches, word_matches, prefix_matches, initial_matches].reject{ |a| a.empty? }.first
+      lookup_named item_string, item_list
     end
 
-    def lookup_item(item_string, *item_sources)
-      matches = match_items(item_string, *item_sources)
+    def lookup_exit(exit_string)
+      target_room = lookup_named exit_string, @current_room.exits.values
 
-      if matches
-        if matches.size == 1
-          matches.first
-        else
-          puts "\n'#{item_string}' could mean multiple things:"
-          matches.each_with_index { |item, n|
-            maybe_in_inv = ", in inventory" unless item.location
-            puts "\t#{item.name} (##{n + 1}#{maybe_in_inv})"
-          }
-          n = ask "Which did you mean?", "#"
-          until n.empty? do
-            begin
-              return matches[Integer(n) - 1]
-            rescue
-              n = ask "I didn't understand that. Which did you mean again?", "#"
-            end
-          end
-        end
+      if target_room
+        @current_room.exits.keys.select{ |d| @current_room.exits[d] == target_room }.first
       end
     end
 
@@ -441,7 +460,7 @@ private
           end
         end
       when "go"
-        direction = Directions::parse command[1..-1].join(" ")
+        direction = (Directions::parse command[1..-1].join(" ")) || (lookup_exit command[1..-1].join(" "))
         if direction
           [:move, direction]
         end
