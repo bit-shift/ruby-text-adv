@@ -281,7 +281,7 @@ private
         if n_obj.respond_to? :synonyms 
           object_names += n_obj.synonyms
         end
-        object_names.map! { |n| n.downcase }
+        object_names.map!(&:downcase)
 
         if object_names.include? query_string
           exact_matches << n_obj
