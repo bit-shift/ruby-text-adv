@@ -574,8 +574,8 @@ while $repeat do
     }
 
     outside = add_room{
-      named "your yard"
-      desc "It's a yard. What more can I say?"
+      named "outside"
+      desc "It's the yard outside your house. What more can I say?"
       add_item{
         named "big red button"
         desc "It's big. And red."
