@@ -263,7 +263,7 @@ private
       end
     end
 
-    def lookup_item(item_string, *item_sources)
+    def match_items(item_string, *item_sources)
       item_list = []
 
       if item_sources.empty?
@@ -278,13 +278,58 @@ private
         end
       end
 
+      item_string.downcase!
+
+      exact_matches = []
+      word_matches = []
+      prefix_matches = []
+      initial_matches = []
+
       item_list.each do |item|
-        if ([item.name] + item.synonyms).include? item_string
-          return item
+        item_names = ([item.name] + item.synonyms).map{ |n| n.downcase }
+
+        if item_names.include? item_string
+          exact_matches << item
+        end
+
+        unless item_names.select{ |n| n.split.include? item_string }.empty?
+          word_matches << item
+        end
+
+        unless item_names.select{ |n| n.start_with? item_string }.empty?
+          prefix_matches << item
+        end
+
+        unless item_names.select{ |n| n.split.map{ |w| w[0] } == item_string.each_char.to_a }.empty?
+          initial_matches << item
         end
       end
-      
-      nil
+
+      [exact_matches, word_matches, prefix_matches, initial_matches].reject{ |a| a.empty? }.first
+    end
+
+    def lookup_item(item_string, *item_sources)
+      matches = match_items(item_string, *item_sources)
+
+      if matches
+        if matches.size == 1
+          matches.first
+        else
+          puts "\n'#{item_string}' could mean multiple things:"
+          matches.each_with_index { |item, n|
+            maybe_in_inv = ", in inventory" unless item.location
+            puts "\t#{item.name} (##{n + 1}#{maybe_in_inv})"
+          }
+          n = ask "Which did you mean?", "#"
+          until n.empty? do
+            begin
+              return matches[Integer(n) - 1]
+            rescue
+              n = ask "I didn't understand that. Which did you mean again?", "#"
+            end
+          end
+        end
+      end
     end
 
     def describe_item(item)
