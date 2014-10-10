@@ -509,7 +509,7 @@ while $repeat do
       named "a living room"
       desc "This is a room for living in. It looks rather un-lived-in. How ironic."
       add_item{
-        named "blue potion", "potion"
+        named "blue potion"
         desc "A bubbly blue potion. It doesn't *seem* to be poisonous..."
         mark_as :usable, :drinkable
         on_use{
@@ -518,13 +518,26 @@ while $repeat do
           :destroy
         }
       }
+      add_item{
+        named "yellow potion"
+        desc "You're not actually sure this is a potion at all. Ew."
+        mark_as :usable, :drinkable
+        on_use{
+          puts "Blech! Definitely not a potion!"
+          :destroy
+        }
+      }
+      add_item{
+        named "blue box"
+        desc "It's making occasional *VWORP! VWORP!* noises."
+      }
     }
 
     secret_cave = add_room {
       named "a mysterious cave"
       desc "You never realized there was a cave under your yard, but well, here it is."
       add_item{
-        named "yellow button", "button"
+        named "yellow button"
         desc "It's not as big as the red button, but it's happy with its size."
         mark_as :usable, :fixed, :pressable
         on_use{
@@ -540,7 +553,7 @@ while $repeat do
       named "your yard"
       desc "It's a yard. What more can I say?"
       add_item{
-        named "big red button", "big button", "red button", "button"
+        named "big red button", "red button"
         desc "It's big. And red."
         mark_as :usable, :fixed, :pressable
         on_use{
