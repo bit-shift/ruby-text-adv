@@ -310,7 +310,11 @@ private
         end
 
         if (item.instance_eval &item.use_action) == :destroy
-          @inventory.reject! { |i| i == item }
+          if item.location
+            item.location.contents.reject! { |i| i == item }
+          else
+            @inventory.reject! { |i| i == item }
+          end
         end
       else
         puts "You can't #{use_type} that right now."
