@@ -345,7 +345,7 @@ private
         end
       end
 
-      lookup_named item_string, item_list
+      lookup_named(item_string, item_list) { |item| "in inventory" unless item.location }
     end
 
     def lookup_exit(exit_string)
