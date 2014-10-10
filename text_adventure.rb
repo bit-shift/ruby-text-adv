@@ -292,7 +292,7 @@ private
           exact_matches << item
         end
 
-        unless item_names.select{ |n| n.split.include? item_string }.empty?
+        unless item_names.select{ |n| (item_string.split & n.split) == item_string.split }.empty?
           word_matches << item
         end
 
@@ -553,7 +553,7 @@ while $repeat do
       named "your yard"
       desc "It's a yard. What more can I say?"
       add_item{
-        named "big red button", "red button"
+        named "big red button"
         desc "It's big. And red."
         mark_as :usable, :fixed, :pressable
         on_use{
